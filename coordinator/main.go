@@ -1,7 +1,8 @@
 package main
 
 import (
-	coordinatorController "coordinator/internal/controllers/coordinator"
+	ccollector "coordinator/internal/controllers/collector"
+	ccoordinator "coordinator/internal/controllers/coordinator"
 	"fmt"
 	"os"
 	"sync"
@@ -20,7 +21,8 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Go(func() {coordinatorController.Coordinate(file)})
+	wg.Go(func() {ccoordinator.Coordinate(file)})
+	wg.Go(func() {ccollector.Collect()})
 
 	wg.Wait()
 }

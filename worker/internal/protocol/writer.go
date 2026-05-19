@@ -7,6 +7,6 @@ import (
 
 func WriteRCOUNT(conn net.Conn, count int) {
 	conn.Write([]byte(" "))
-	m := fmt.Sprintf(RCOUNT, count)
+	m := fmt.Sprintf(string(RCOUNT), count)
 	conn.Write([]byte(m))
 }

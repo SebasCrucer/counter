@@ -44,7 +44,7 @@ func (w *Worker) Work() protocol.WCODE {
 		}
 		word := scanner.Text()
 
-		if word == protocol.GENDCODE {
+		if word == string(protocol.GENDCODE) {
 			return protocol.WGENDCODE
 		}
 		w.Counter.AddWord(&word)

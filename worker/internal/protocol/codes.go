@@ -1,10 +1,11 @@
 package protocol
 
+type PROTOCOLCODE string
 
-const GENDCODE string = "::::END::::"
+const GENDCODE PROTOCOLCODE = "::::GEND::::"
 
 
-const WINFOCODE string = "::::WI%d::::"
+const WINFOCODE PROTOCOLCODE = "::::WI%d::::"
 
 type WCODE int
 
@@ -16,7 +17,7 @@ const (
 )
 
 
-const RCOUNT string = "::::RC%d::::"
+const RCOUNT PROTOCOLCODE = "::::RC%d::::"
 
 type RCODE int
 
