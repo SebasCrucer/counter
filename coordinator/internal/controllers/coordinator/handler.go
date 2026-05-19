@@ -1,4 +1,4 @@
-package connection
+package coordinator
 
 import (
 	"coordinator/internal/coordinator"

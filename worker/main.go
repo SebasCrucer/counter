@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"worker/internal/counter"
 	"worker/internal/protocol"
 	"worker/internal/worker"
 )
@@ -32,6 +33,7 @@ func main() {
 				w := worker.NewWorker(&worker.Worker{
 					WorkerId: id,
 					TopJobs: &TOPJOB,
+					Counter: counter.NewCounter(),
 				})
 				if w == protocol.WGENDCODE {
 					onceDone.Do(func(){close(done)})

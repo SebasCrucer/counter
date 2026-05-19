@@ -26,12 +26,14 @@ func NewCoordinator(file *os.File) *Coordinator {
 	}
 }
 
-func (c *Coordinator) Init() {
+func (c *Coordinator) Init() *Coordinator {
 	go func (){
 		for i := range c.Indexer.Steps {
 			c.Tasks<-i
 		}
 	}()
+
+	return c
 }
 
 func (c *Coordinator) NewWorker(conn net.Conn) *Worker {

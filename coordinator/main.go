@@ -1,21 +1,13 @@
 package main
 
 import (
-	"coordinator/internal/connection"
-	"coordinator/internal/coordinator"
-	"coordinator/internal/protocol"
+	coordinatorController "coordinator/internal/controllers/coordinator"
 	"fmt"
-	"net"
 	"os"
+	"sync"
 )
 
 func main() {
-	ln, err := net.Listen("tcp", ":3000")
-	if err != nil {
-		fmt.Println("Error al iniciar el servidor:", err)
-		os.Exit(1)
-	}
-	defer ln.Close()
 
 	fmt.Println("Servidor TCP escuchando en el puerto 3000...")
 
@@ -26,22 +18,9 @@ func main() {
  	}
  	defer file.Close()
 
-	coordinator := coordinator.NewCoordinator(file)
+	var wg sync.WaitGroup
 
-	coordinator.Init()
+	wg.Go(func() {coordinatorController.Coordinate(file)})
 
-	for {
-		conn, err := ln.Accept()
-		if coordinator.HadEnded() {
-			protocol.WriteGENDCODE(conn)
-			conn.Close()
-			return
-		}
-		fmt.Println("Nueva conexión entrante...")
-		if err != nil {
-			fmt.Println("Error al aceptar la conexión:", err)
-			continue
-		}
-		go connection.HandleConnection(conn, coordinator)
-	}
+	wg.Wait()
 }
