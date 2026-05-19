@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"worker/internal/counter"
 	"worker/internal/protocol"
+	"worker/internal/reporter"
 	"worker/internal/worker"
 )
 
@@ -30,14 +31,37 @@ func main() {
 				}
 				id := fmt.Sprintf("J%d", jobId)
 
-				w := worker.NewWorker(&worker.Worker{
+				w, err := worker.NewWorker(&worker.Worker{
 					WorkerId: id,
 					TopJobs: &TOPJOB,
 					Counter: counter.NewCounter(),
 				})
-				if w == protocol.WGENDCODE {
+				if err != nil {
+					fmt.Printf("Error en creación de worker: %s\n", err)
+				}
+
+				work := w.Work()
+
+				switch work {
+				case protocol.WOK: {
+					r, err := reporter.NewReporter(&reporter.Reporter{
+						Worker: w,
+					})
+					if err != nil {
+						fmt.Printf("Error en creación de reporter: %s\n", err)
+					}
+					report := r.Report()
+
+					switch report {
+					case protocol.ROK: 
+					case protocol.RERROR: 
+					}
+				}
+				case protocol.WGENDCODE: {
 					onceDone.Do(func(){close(done)})
 					return
+				}
+				default:
 				}
 			}
 		})

@@ -1,6 +1,7 @@
 package reporter
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"worker/internal/protocol"
@@ -12,7 +13,14 @@ type Reporter struct {
 	Worker *worker.Worker
 }
 
-func Report(r *Reporter) protocol.RCODE {
+func NewReporter(r *Reporter) (*Reporter, error) {
+	if r.Worker == nil {
+		return nil, errors.New("worker is required")
+	}	
+	return r, nil
+}
+
+func (r *Reporter) Report() protocol.RCODE {
 	conn, err := net.Dial("tcp", "localhost:3001")
 	if err != nil {
 		fmt.Printf("Error de conexión de reporter - worker %s: %s\n", r.Worker.WorkerId, err)
