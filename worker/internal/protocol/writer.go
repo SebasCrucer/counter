@@ -1,6 +1,7 @@
 package protocol
 
 import (
+	"bufio"
 	"encoding/binary"
 	"fmt"
 	"net"
@@ -8,22 +9,25 @@ import (
 
 func WriteRCOUNT(conn net.Conn, count map[string]uint64) {
 	fmt.Printf("Writing report: %d\n", len(count))
+
+	writterBuf := bufio.NewWriterSize(conn, 64*1024)
+	defer writterBuf.Flush()
+
+	var longBuf [2]byte
+	var countBuf [8]byte
+
 	for word, wordCount := range count {
-		wordBytes := []byte(word)
-		if len(wordBytes) > 0xFFFF {
+		wordBuf := []byte(word)
+		if len(wordBuf) > 0xFFFF {
 			fmt.Printf("Error: word too long to report: %s\n", word)
-        	return
+        	continue
       	}
 		
-		buf := make([]byte, 2+len(wordBytes)+8)
-		
-		binary.BigEndian.PutUint16(buf[0:2], uint16(len(wordBytes)))
-		copy(buf[2:2+len(wordBytes)], wordBytes)
-		binary.BigEndian.PutUint64(buf[2+len(wordBytes):], uint64(wordCount))
+		binary.BigEndian.PutUint16(longBuf[:], uint16(len(wordBuf)))
+		binary.BigEndian.PutUint64(countBuf[:], uint64(wordCount))
 
-		if _, err := conn.Write(buf); err != nil {
-			fmt.Printf("Error writing report: %s\n", err)
-			return
-		}
+		writterBuf.Write(longBuf[:])
+		writterBuf.Write(wordBuf)
+		writterBuf.Write(countBuf[:])
 	}
 }
