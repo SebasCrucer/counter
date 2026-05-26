@@ -13,7 +13,7 @@ func main() {
 
 	fmt.Println("Servidor TCP escuchando en el puerto 3000...")
 
-	file, err := os.Open("assets/wiki_concatenated_tiny.txt")
+	file, err := os.Open("assets/wiki_concatenated.txt")
  	if err != nil {
 		fmt.Println("Error al abrir el archivo:", err)
 		return

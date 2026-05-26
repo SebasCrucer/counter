@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"sync/atomic"
+	"unicode"
 	"worker/internal/counter"
 	"worker/internal/protocol"
 )
@@ -69,7 +71,13 @@ func (w *Worker) Work() WCODE {
  	for scanner.Scan() {
 		word := scanner.Text()
 
-		w.Counter.AddWord(word)
+		tokens := strings.FieldsFunc(word, func(r rune) bool {
+			return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+		})
+
+		for _, cleanWord := range tokens {
+			w.Counter.AddWord(strings.ToLower(cleanWord))
+		}
  	}
 
 	errS := scanner.Err()
