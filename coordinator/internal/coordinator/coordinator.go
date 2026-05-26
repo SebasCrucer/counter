@@ -13,7 +13,7 @@ type Coordinator struct {
 	mu sync.Mutex
 	Workers map[string]*Worker
 	Indexer *indexer.Indexer
-	Tasks chan int
+	Tasks chan uint32
 	CompletedSteps int64
 }
 
@@ -21,7 +21,7 @@ func NewCoordinator(file *os.File) *Coordinator {
 	return &Coordinator{
 		Workers: make(map[string]*Worker),
 		Indexer: indexer.NewIndexer(file),
-		Tasks: make(chan int, 10),
+		Tasks: make(chan uint32, 10),
 		CompletedSteps: 0,
 	}
 }
@@ -29,7 +29,7 @@ func NewCoordinator(file *os.File) *Coordinator {
 func (c *Coordinator) Init() *Coordinator {
 	go func (){
 		for i := range c.Indexer.Steps {
-			c.Tasks<-i
+			c.Tasks<-uint32(i)
 		}
 	}()
 

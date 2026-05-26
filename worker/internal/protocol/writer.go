@@ -7,11 +7,15 @@ import (
 	"net"
 )
 
-func WriteRCOUNT(conn net.Conn, count map[string]uint64) {
+func WriteRCOUNT(conn net.Conn, chunkId uint32, count map[string]uint64) {
 	fmt.Printf("Writing report: %d\n", len(count))
 
 	writterBuf := bufio.NewWriterSize(conn, 64*1024)
 	defer writterBuf.Flush()
+
+	var chunkIdBuf [4]byte
+	binary.BigEndian.PutUint32(chunkIdBuf[:], chunkId)
+	writterBuf.Write(chunkIdBuf[:])
 
 	var longBuf [2]byte
 	var countBuf [8]byte

@@ -36,7 +36,7 @@ func (r *Reporter) Report() RCODE {
 	}
 	defer conn.Close()
 
-	protocol.WriteRCOUNT(conn, r.Worker.Counter.Count)
+	protocol.WriteRCOUNT(conn, r.Worker.ChunkId, r.Worker.Counter.Count)
 
 	if tcp, ok := conn.(*net.TCPConn); ok {
 		if err := tcp.CloseWrite(); err != nil {

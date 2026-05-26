@@ -2,6 +2,7 @@ package worker
 
 import (
 	"bufio"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -24,6 +25,7 @@ type Worker struct {
 	WorkerId string
 	TopJobs *int64
 	Counter *counter.Counter
+	ChunkId uint32
 }
 
 func NewWorker(w *Worker) (*Worker, error){
@@ -53,6 +55,13 @@ func (w *Worker) Work() WCODE {
 		fmt.Printf("Worker %s: no hay trabajo\n", w.WorkerId)
 		return WGENDCODE
 	}
+
+	var chunkBuf [4]byte
+	if _, err := io.ReadFull(conn, chunkBuf[:]); err != nil {
+		return WERROR
+	}
+
+	w.ChunkId = binary.BigEndian.Uint32(chunkBuf[:])
 
 	scanner := bufio.NewScanner(conn)
 	scanner.Buffer(make([]byte, 64*1024), 16*1024*1024)

@@ -6,6 +6,18 @@ import (
 	"io"
 )
 
+func ReadReportChunkId(reader *bufio.Reader) (uint32, error) {
+	var chunkIdBuf [4]byte
+
+	if _, err := io.ReadFull(reader, chunkIdBuf[:]); err != nil {
+		return 0, err
+	}
+
+	chunkId := binary.BigEndian.Uint32(chunkIdBuf[:])
+
+	return chunkId, nil
+}
+
 func ReadReport(reader *bufio.Reader) (string, uint64, error) {
 	var longBuf [2]byte
 

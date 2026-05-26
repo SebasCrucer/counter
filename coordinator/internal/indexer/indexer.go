@@ -19,7 +19,7 @@ type Indexer struct {
 	Idexed []*Chunk
 	FileSize int64
 	File *os.File
-	Steps int
+	Steps uint32
 }
 
 const INDEX_STEP = int64(1024*1024*8)
@@ -39,11 +39,11 @@ func NewIndexer(file *os.File) *Indexer {
 	}
 }
 
-func calcSteps(fileSize int64) int {
-	return int((fileSize + INDEX_STEP - 1) / INDEX_STEP)
+func calcSteps(fileSize int64) uint32 {
+	return uint32((fileSize + INDEX_STEP - 1) / INDEX_STEP)
 }
  
-func (i *Indexer) calcStartPositionByIndex(index int) int64 {
+func (i *Indexer) calcStartPositionByIndex(index uint32) int64 {
 	prestart := int64(0)
 	if index == 0 {
 		return prestart
@@ -80,7 +80,7 @@ func (i *Indexer) calcStartPositionByIndex(index int) int64 {
 // 	return chunk
 // }
 
-func (i *Indexer) IndexChunk(index int) *Chunk {
+func (i *Indexer) IndexChunk(index uint32) *Chunk {
 	start := i.calcStartPositionByIndex(index)
 
 	chunk := &Chunk{

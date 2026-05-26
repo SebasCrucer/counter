@@ -14,6 +14,12 @@ func HandleConnection(conn net.Conn, collector *collector.Collector) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
 
+	chunkId, err := protocol.ReadReportChunkId(reader)
+	if err != nil {
+		protocol.WriteRERROR(conn)
+		return
+	}
+
 	var fatal error
  	for {
 		word, count, err := protocol.ReadReport(reader)
@@ -32,7 +38,7 @@ func HandleConnection(conn net.Conn, collector *collector.Collector) {
 	if fatal != nil {
 		protocol.WriteRERROR(conn)
 	} else {
+		collector.MarkChunk(chunkId)
 		protocol.WriteROK(conn)
 	}
-
 }

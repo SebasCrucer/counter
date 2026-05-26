@@ -23,12 +23,11 @@ func Coordinate(c *coordinator.Coordinator) {
 			conn.Close()
 			return
 		}
-		fmt.Println("Nueva conexión entrante...")
+		fmt.Println("Nueva conexión de worker")
 		if err != nil {
 			fmt.Println("Error al aceptar la conexión:", err)
 			continue
 		}
-		protocol.WriteWGOCODE(conn)
 		go HandleConnection(conn, c)
 	}
 }

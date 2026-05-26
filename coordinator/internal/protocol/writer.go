@@ -1,11 +1,15 @@
 package protocol
 
 import (
+	"encoding/binary"
 	"net"
 )
 
-func WriteWGOCODE(conn net.Conn) {
-	conn.Write([]byte{byte(WGOCODE)})
+func WriteWGOCODE(conn net.Conn, chunkIndex uint32) {
+	var buf [5]byte
+	buf[0] = byte(WGOCODE)
+	binary.BigEndian.PutUint32(buf[1:], chunkIndex)
+	conn.Write(buf[:])
 }
 
 func WriteWGENDCODE(conn net.Conn) {

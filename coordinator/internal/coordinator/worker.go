@@ -18,7 +18,7 @@ const (
 
 type Worker struct {
 	Coordinator *Coordinator
-	ChunkIndex int
+	ChunkIndex uint32
 	State State
 	Conn net.Conn
 }
