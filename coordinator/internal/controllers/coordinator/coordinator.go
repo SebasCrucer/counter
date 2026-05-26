@@ -19,7 +19,7 @@ func Coordinate(c *coordinator.Coordinator) {
 	for {
 		conn, err := ln.Accept()
 		if c.HadEnded() {
-			protocol.WriteGENDCODE(conn)
+			protocol.WriteWGENDCODE(conn)
 			conn.Close()
 			return
 		}
@@ -28,6 +28,7 @@ func Coordinate(c *coordinator.Coordinator) {
 			fmt.Println("Error al aceptar la conexión:", err)
 			continue
 		}
+		protocol.WriteWGOCODE(conn)
 		go HandleConnection(conn, c)
 	}
 }

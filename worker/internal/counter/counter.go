@@ -2,15 +2,15 @@ package counter
 
 
 type Counter struct {
-	Count int
+	Count map[string]uint64
 }
 
 func NewCounter() *Counter {
 	return &Counter{
-		Count: 0,
+		Count: make(map[string]uint64),
 	}
 }
 
-func (c *Counter) AddWord(word *string) {
-	c.Count++
+func (c *Counter) AddWord(word string) {
+	c.Count[word]++
 }

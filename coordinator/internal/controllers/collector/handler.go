@@ -4,29 +4,35 @@ import (
 	"bufio"
 	"coordinator/internal/collector"
 	"coordinator/internal/protocol"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 )
 
 func HandleConnection(conn net.Conn, collector *collector.Collector) {
 	defer conn.Close()
-	scanner := bufio.NewScanner(conn)
+	reader := bufio.NewReader(conn)
 
-	scanner.Split(bufio.ScanWords)
- 	for scanner.Scan() {
-		err := scanner.Err()
-		if nil != err {
-			fmt.Printf("Error de scanner del collector: %s\n", err)
-			protocol.WriteRERROR(conn)
+	var fatal error
+ 	for {
+		word, count, err := protocol.ReadReport(reader)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			fmt.Printf("Error leyendo reporte: %s\n", err)
+			fatal = err
+			break
 		}
-		word := scanner.Text()
 
-		var count int64
-		n, err := fmt.Sscanf(word, string(protocol.RCOUNT), &count)
-		if err == nil && n == 1 {
-			collector.Collect(count)
-			protocol.WriteROK(conn)
-		}
- 	}
-	protocol.WriteRERROR(conn)
+		collector.Collect(word, count)
+	}
+
+	if fatal != nil {
+		protocol.WriteRERROR(conn)
+	} else {
+		protocol.WriteROK(conn)
+	}
+
 }

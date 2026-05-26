@@ -48,13 +48,15 @@ func (w *Worker) Work() {
 
 	buf := make([]byte, 32*1024)
 
+	var failed bool
 	for {
 		n, errR := section.Read(buf)
 		if n > 0 {
 			_, errW := writter.Write(buf[:n])
 			if errW != nil {
 				fmt.Printf("Error al escribir Chunk %d: %s\n", w.ChunkIndex, errW)
-				w.OnError()
+				failed = true
+				break
 			}
 		}
 
@@ -63,13 +65,20 @@ func (w *Worker) Work() {
 		}
 		if errR != nil {
 			fmt.Printf("Error al leer Chunk %d: %s\n", w.ChunkIndex, errR)
-			w.OnError()
+			failed = true
+			break
 		}
  	}
 
-	w.OnSuccess()
+	if errF := writter.Flush(); errF != nil {
+		failed = true
+	}
 
-	writter.Flush()
+	if failed {
+		w.OnError()
+		return
+	}
+	w.OnSuccess()
 } 
 
 func (w *Worker) OnError() {

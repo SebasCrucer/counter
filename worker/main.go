@@ -5,7 +5,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"worker/internal/counter"
-	"worker/internal/protocol"
 	"worker/internal/reporter"
 	"worker/internal/worker"
 )
@@ -43,7 +42,7 @@ func main() {
 				work := w.Work()
 
 				switch work {
-				case protocol.WOK: {
+				case worker.WOK: {
 					r, err := reporter.NewReporter(&reporter.Reporter{
 						Worker: w,
 					})
@@ -53,11 +52,11 @@ func main() {
 					report := r.Report()
 
 					switch report {
-					case protocol.ROK: 
-					case protocol.RERROR: 
+					case reporter.ROK: 
+					case reporter.RERROR: 
 					}
 				}
-				case protocol.WGENDCODE: {
+				case worker.WGENDCODE: {
 					onceDone.Do(func(){close(done)})
 					return
 				}

@@ -1,13 +1,11 @@
 package protocol
 
-type PROTOCOLCODE string
+type PROTOCOLCODE byte
 
-const GENDCODE PROTOCOLCODE = "::::GEND::::"
+const WGOCODE PROTOCOLCODE = 0x00
 
-const WINFOCODE PROTOCOLCODE = "::::WI%d::::"
+const WGENDCODE PROTOCOLCODE = 0x01
 
-const RCOUNT PROTOCOLCODE = "::::RC%d::::"
+const ROK PROTOCOLCODE = 0x02
 
-const ROK PROTOCOLCODE = "::::ROK::::"
-
-const RERROR PROTOCOLCODE = "::::RERROR::::"
+const RERROR PROTOCOLCODE = 0x03

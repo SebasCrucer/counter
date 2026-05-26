@@ -4,15 +4,18 @@ import (
 	"net"
 )
 
-func WriteGENDCODE(conn net.Conn) {
-	conn.Write([]byte(" "))
-	conn.Write([]byte(GENDCODE))
+func WriteWGOCODE(conn net.Conn) {
+	conn.Write([]byte{byte(WGOCODE)})
 }
 
-func WriteRERROR(conn net.Conn) {
-	conn.Write([]byte(RERROR))
+func WriteWGENDCODE(conn net.Conn) {
+	conn.Write([]byte{byte(WGENDCODE)})
 }
 
 func WriteROK(conn net.Conn) {
-	conn.Write([]byte(ROK))
+	conn.Write([]byte{byte(ROK)})
+}
+
+func WriteRERROR(conn net.Conn) {
+	conn.Write([]byte{byte(RERROR)})
 }

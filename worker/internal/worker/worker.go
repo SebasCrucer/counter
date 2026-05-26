@@ -4,10 +4,20 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"sync/atomic"
 	"worker/internal/counter"
 	"worker/internal/protocol"
+)
+
+type WCODE int
+
+const (
+	_ WCODE = iota
+	WOK
+	WGENDCODE
+	WERROR
 )
 
 type Worker struct {
@@ -26,35 +36,43 @@ func NewWorker(w *Worker) (*Worker, error){
 	return w, nil
 }
 
-func (w *Worker) Work() protocol.WCODE {
+func (w *Worker) Work() WCODE {
 	conn, err := net.Dial("tcp", "localhost:3000")
 	if err != nil {
 		fmt.Printf("Error de conexión del worker %s: %s\n", w.WorkerId, err)
-		return protocol.WERROR
+		return WERROR
 	}
 	defer conn.Close()
-	scanner := bufio.NewScanner(conn)
 
+	var greet [1]byte
+	if _, err := io.ReadFull(conn, greet[:]); err != nil {
+		return WERROR
+	}
+
+	if protocol.PROTOCOLCODE(greet[0]) == protocol.WGENDCODE {
+		fmt.Printf("Worker %s: no hay trabajo\n", w.WorkerId)
+		return WGENDCODE
+	}
+
+	scanner := bufio.NewScanner(conn)
+	scanner.Buffer(make([]byte, 64*1024), 16*1024*1024)
 	scanner.Split(bufio.ScanWords)
  	for scanner.Scan() {
-		errS := scanner.Err()
-		if nil != errS {
-			fmt.Printf("Error de scanner del worker %s: %s\n", w.WorkerId, err)
-			return protocol.WERROR
-		}
 		word := scanner.Text()
 
-		if word == string(protocol.GENDCODE) {
-			return protocol.WGENDCODE
-		}
-		w.Counter.AddWord(&word)
+		w.Counter.AddWord(word)
  	}
 
-	fmt.Printf("Worker: %s - Counted: %d - Top Jobs: %d \n", 
+	errS := scanner.Err()
+	if nil != errS {
+		fmt.Printf("Error de scanner del worker %s: %s\n", w.WorkerId, errS)
+		return WERROR
+	}
+
+	fmt.Printf("Worker: %s - Unique Words: %d - Top Jobs: %d \n", 
 		w.WorkerId, 
-		w.Counter.Count, 
+		len(w.Counter.Count), 
 		atomic.LoadInt64(w.TopJobs),
 	)
-	conn.Close()
-	return protocol.WOK
+	return WOK
 }

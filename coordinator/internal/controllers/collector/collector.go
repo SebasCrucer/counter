@@ -3,7 +3,6 @@ package collector
 import (
 	"coordinator/internal/collector"
 	"coordinator/internal/coordinator"
-	"coordinator/internal/protocol"
 	"fmt"
 	"net"
 	"os"
@@ -21,11 +20,6 @@ func Collect(c *coordinator.Coordinator) {
 
 	for {
 		conn, err := ln.Accept()
-		if c.HadEnded() {
-			protocol.WriteGENDCODE(conn)
-			conn.Close()
-			return
-		}
 		fmt.Println("Nueva conexión entrante...")
 		if err != nil {
 			fmt.Println("Error al aceptar la conexión:", err)

@@ -1,22 +1,23 @@
 package collector
 
 import (
-	"fmt"
-	"sync/atomic"
+	"sync"
 )
 
 type Collector struct {
-	Sum *int64
+	mu sync.Mutex
+	Collection map[string]uint64
 }
 
 func NewCollector() *Collector {
-	var sum int64 = 0
 	return &Collector{
-		Sum: &sum,
+		Collection: make(map[string]uint64),
 	}
 }
 
-func (c *Collector) Collect(count int64) {
-	fmt.Printf("Collector recibió: %d - Total: %d\n", count, atomic.LoadInt64(c.Sum))
-	atomic.AddInt64(c.Sum, count)
+func (c *Collector) Collect(word string, count uint64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Collection[word] = c.Collection[word] + count
+	// fmt.Printf("Collector recibió: %d %s - Total: %d\n", count, word, c.Collection[word])
 }
